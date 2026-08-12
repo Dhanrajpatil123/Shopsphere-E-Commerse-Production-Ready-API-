@@ -42,18 +42,18 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(UserDeactivateException.class)
-    public ResponseEntity<?> handleUserDeactivateException(UserDeactivateException exception){
+    @ExceptionHandler(UserAlreadyDeactivatedException.class)
+    public ResponseEntity<?> handleUserAlreadyDeactivatedException(UserAlreadyDeactivatedException exception){
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .success(false)
                 .message(exception.getMessage())
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.CONFLICT.value())
                 .timestamp(LocalDateTime.now())
                 .build();
 
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.CONFLICT)
                 .body(errorResponse);
     }
 
