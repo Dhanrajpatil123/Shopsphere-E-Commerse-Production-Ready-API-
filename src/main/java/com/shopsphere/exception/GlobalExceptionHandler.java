@@ -41,4 +41,36 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+
+    @ExceptionHandler(UserDeactivateException.class)
+    public ResponseEntity<?> handleUserDeactivateException(UserDeactivateException exception){
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .success(false)
+                .message(exception.getMessage())
+                .status(HttpStatus.NOT_FOUND.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(errorResponse);
+    }
+
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<?> handleGlobalException(Exception exception){
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .success(false)
+                .message(exception.getMessage())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorResponse);
+    }
+
 }
