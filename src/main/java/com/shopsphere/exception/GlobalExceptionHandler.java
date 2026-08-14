@@ -2,6 +2,7 @@ package com.shopsphere.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -26,6 +27,7 @@ public class GlobalExceptionHandler {
     }
 
 
+
     @ExceptionHandler(DuplicateResourceException.class)
     public ResponseEntity<?> handleDuplicateResourceException(DuplicateResourceException exception){
 
@@ -42,6 +44,7 @@ public class GlobalExceptionHandler {
     }
 
 
+
     @ExceptionHandler(UserAlreadyDeactivatedException.class)
     public ResponseEntity<?> handleUserAlreadyDeactivatedException(UserAlreadyDeactivatedException exception){
 
@@ -55,6 +58,40 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(errorResponse);
+    }
+
+
+
+    @ExceptionHandler(CategoryAlreadyDeactivatedException.class)
+    public ResponseEntity<?> handleCategoryAlreadyDeactivatedException(CategoryAlreadyDeactivatedException exception){
+
+        ErrorResponse response = ErrorResponse.builder()
+                .success(false)
+                .message(exception.getMessage())
+                .status(HttpStatus.CONTINUE.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(response);
+    }
+
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDeniedException(
+            AccessDeniedException ex) {
+
+        ErrorResponse response = ErrorResponse.builder()
+                .success(false)
+                .message("Access Denied")
+                .status(HttpStatus.FORBIDDEN.value())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(response);
     }
 
 

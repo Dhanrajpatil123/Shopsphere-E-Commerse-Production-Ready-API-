@@ -57,8 +57,18 @@ public class SecurityConfig {
 
                                 // only admin can delete any user
                                 // Unlike update/deactivate, a customer cannot delete even their own account through this endpoint.
+                                // but we manage this in service layer
                                 .requestMatchers(HttpMethod.DELETE, "/api/users/**")
                                 .hasRole("ADMIN")
+
+
+                                /*
+                                .requestMatchers(HttpMethod.PUT, "/api/categories/**")
+                                .hasRole("ADMIN")
+
+                                .requestMatchers(HttpMethod.DELETE, "/api/categories/**")
+                                .hasRole("ADMIN")
+                                 */
 
 
                                 .anyRequest()
