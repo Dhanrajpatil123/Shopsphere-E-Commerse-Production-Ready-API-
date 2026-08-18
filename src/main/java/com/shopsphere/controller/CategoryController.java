@@ -3,7 +3,6 @@ package com.shopsphere.controller;
 
 import com.shopsphere.dto.request.CategoryRequest;
 import com.shopsphere.dto.response.CategoryResponse;
-import com.shopsphere.model.Category;
 import com.shopsphere.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

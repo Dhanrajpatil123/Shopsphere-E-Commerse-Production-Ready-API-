@@ -2,6 +2,7 @@ package com.shopsphere.controller;
 
 import com.shopsphere.dto.request.ProductRequest;
 import com.shopsphere.dto.response.ProductResponse;
+import com.shopsphere.model.Product;
 import com.shopsphere.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
 
 @RestController
 @RequiredArgsConstructor
@@ -83,17 +86,17 @@ public class ProductController {
     }
 
 
-    @GetMapping("/search")
-    public ResponseEntity<?> searchProduct(@RequestParam String productName,
-                                           @RequestParam(defaultValue = "0") int page,
-                                           @RequestParam(defaultValue = "10") int size){
-
-        Page<ProductResponse> responses = this.productService.searchProducts(productName, page, size);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(responses);
-    }
+//    @GetMapping("/search")
+//    public ResponseEntity<?> searchProduct(@RequestParam String productName,
+//                                           @RequestParam(defaultValue = "0") int page,
+//                                           @RequestParam(defaultValue = "10") int size){
+//
+//        Page<ProductResponse> responses = this.productService.searchProducts(productName, page, size);
+//
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(responses);
+//    }
 
 
     @DeleteMapping("/{productId}")
@@ -102,5 +105,36 @@ public class ProductController {
 
         return ResponseEntity.noContent().build();
     }
+
+
+
+//    @GetMapping("/filter")
+//    public ResponseEntity<Page<ProductResponse>> filterProductByPrice(@RequestParam BigDecimal minPrice,
+//                                                                      @RequestParam BigDecimal maxPrice,
+//                                                                      @RequestParam(defaultValue = "0") int page,
+//                                                                      @RequestParam(defaultValue = "10") int size){
+//
+//        Page<ProductResponse> productPage = this.productService.findByActiveTrueAndPriceBetween(minPrice, maxPrice, page, size);
+//
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(productPage);
+//    }
+
+
+
+    @GetMapping("/filter")
+    public ResponseEntity<Page<ProductResponse>> searchProducts(@RequestParam(required = false) String keyword,
+                                                                      @RequestParam(required = false) Long categoryId,
+                                                                      @RequestParam(required = false) BigDecimal minPrice,
+                                                                      @RequestParam(required = false) BigDecimal maxPrice,
+                                                                      @RequestParam(defaultValue = "0") int page,
+                                                                      @RequestParam(defaultValue = "10") int size){
+
+        Page<ProductResponse> responses = this.productService.searchProducts(keyword, categoryId, maxPrice, maxPrice, page, size);
+
+        return ResponseEntity.ok().body(responses);
+    }
+
 
 }

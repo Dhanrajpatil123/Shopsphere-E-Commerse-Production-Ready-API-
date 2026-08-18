@@ -9,15 +9,19 @@ import com.shopsphere.model.Product;
 import com.shopsphere.repository.CategoryRepository;
 import com.shopsphere.repository.ProductRepository;
 import com.shopsphere.service.ProductService;
+import com.shopsphere.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -158,15 +162,6 @@ public class ProductServiceImplementation implements ProductService {
         this.productRepository.save(product);
     }
 
-    @Override
-    public Page<ProductResponse> searchProducts(String productName, int page, int size) {
-
-        Pageable pageable = PageRequest.of(page, size);
-
-        Page<Product> productPage = this.productRepository.findByActiveTrueAndProductNameContainingIgnoreCase(productName, pageable);
-
-        return productPage.map(this::mapToResponse);
-    }
 
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -178,6 +173,79 @@ public class ProductServiceImplementation implements ProductService {
 
         this.productRepository.delete(product);
     }
+
+    @Override
+    public Page<ProductResponse> findByActiveTrueAndPriceBetween(BigDecimal minPrice, BigDecimal maxPrice, int page, int size) {
+        if(minPrice.compareTo(maxPrice) > 0){
+            throw new IllegalArgumentException("Minimum price cannot be greater than maximum price");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Product> products = this.productRepository.findByActiveTrueAndPriceBetween(minPrice, maxPrice, pageable);
+
+        return products.map(this::mapToResponse);
+    }
+
+
+
+//    @Override
+//    public Page<ProductResponse> searchProducts(String productName, int page, int size) {
+//
+//        Pageable pageable = PageRequest.of(page, size);
+//
+//        Page<Product> productPage = this.productRepository.findByActiveTrueAndProductNameContainingIgnoreCase(productName, pageable);
+//
+//        return productPage.map(this::mapToResponse);
+//    }
+
+
+
+    @Override
+    public Page<ProductResponse> searchProducts(String keyword, Long categoryId, BigDecimal minPrice, BigDecimal maxPrice,
+                                                int page, int size) {
+
+
+        if (minPrice != null && maxPrice != null && minPrice.compareTo(maxPrice) > 0) {
+            throw new IllegalArgumentException("Minimum price cannot be greater than maximum price");
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Specification<Product> specification = ProductSpecification.isActive();
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+
+            specification = specification.and(ProductSpecification.hasKeyword(keyword.trim()));
+        }
+
+        if (categoryId != null) {
+
+            specification = specification.and(ProductSpecification.hasCategory(categoryId));
+        }
+
+
+        if (minPrice != null) {
+
+            specification = specification.and(ProductSpecification.priceGreaterThanOrEqualTo(minPrice));
+        }
+
+        if (maxPrice != null) {
+
+            specification = specification.and(ProductSpecification.priceLessThanOrEqualTo(maxPrice)
+            );
+        }
+
+        Page<Product> products = productRepository.findAll(specification, pageable);
+
+        return products.map(this::mapToResponse);
+    }
+
+
+
+
+
+
 
 
     private ProductResponse mapToResponse(Product product) {
